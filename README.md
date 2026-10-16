@@ -4,8 +4,8 @@ A small web app that shows the health of 5 solar plants from 90 days of daily da
 
 - **Backend:** Python, FastAPI, pandas
 - **Frontend:** plain HTML/CSS/JS + Chart.js (served by the same FastAPI app, so there is one thing to deploy)
-- **Live link:** Not deployed yet. Deploy using `render.yaml`, then replace this line with the public URL.
-- **Screenshots:** in [`screenshots/`](screenshots/) (see below).
+- **Live link:** _add your Render URL here_
+- **Screenshots:** see `screenshots/` _(add yours)_
 
 ## Run it locally
 
@@ -20,8 +20,7 @@ pip install -r requirements-dev.txt
 
 uvicorn backend.main:app --reload
 # open http://localhost:8000      API docs: http://localhost:8000/docs
-pytest                                                   # 29 tests
-node --check frontend/app.js                             # check frontend JS syntax
+pytest                                                   # 25 tests
 ```
 
 To point at a different file: `SOLAR_CSV_PATH=/path/to/file.csv uvicorn backend.main:app`.
@@ -126,7 +125,7 @@ The date range only filters what is returned. Analysis always runs on all 90 day
 
 1. **Skip unreliable days.** Days with irradiance below 1.0 are ignored for PR. Outage days are left out of the average and flagged separately. Rows with missing values have no PR.
 2. **7-day rolling PR average** over calendar days (a missing day in the CSV does not stretch the window). At least 3 usable days are needed in a window.
-3. **Status** from the latest 7-day average: 0.70 or above Healthy, 0.60 to below 0.70 Needs attention, below 0.60 Underperforming. If there are too few usable readings, status is `No data`; this is a data-availability state, not a performance diagnosis. The overview still shows all expected plants S1-S5 if one has no rows.
+3. **Status** from the latest 7-day average: 0.70 or above Healthy, 0.60 to 0.70 Needs attention, below 0.60 Underperforming.
 4. **Outage:** 0 kWh on a day with irradiance of 1.0 or more. Consecutive days are grouped into one issue.
 5. **Sudden drop:** the 7-day average is more than 20% below the 7-day average from a week earlier. Consecutive flagged days become one issue.
 6. **Gradual decline:** average PR of the last 14 days is more than 10% below the first 14 days, and no sudden drop was found for that plant.
@@ -145,7 +144,7 @@ Bad values are never guessed. They become missing, the row is tagged, and `/data
 
 | Problem | What happens |
 |---|---|
-| Duplicate (site, date) rows | One kept (the row with the most numeric values filled in). If tied, stable input order wins; conflicting duplicates are not averaged. |
+| Duplicate (site, date) rows | One kept (the one with the most values filled in) |
 | Messy `site_id` (spaces, lowercase) | Trimmed and upper-cased |
 | Unparseable date or empty site | Row dropped |
 | Text in a number column | Treated as missing |
@@ -159,7 +158,7 @@ Bad values are never guessed. They become missing, the row is tagged, and `/data
 
 ## How I used AI tools
 
-I used Claude (Anthropic) to generate the first version of the backend, frontend, tests and this README, and to review and fix it afterwards. I then read through the code, ran the tests and the app, and can explain and change any part of it (thresholds are all constants at the top of `backend/analysis.py`).
+_Edit this to match what you actually did before submitting._ I used Claude (Anthropic) to generate the first version of the backend, frontend, tests and this README. I then read through the code, ran the tests and the app, and can explain and change any part of it (thresholds are all constants at the top of `backend/analysis.py`).
 
 ## What I would improve with more time
 
@@ -168,7 +167,6 @@ I used Claude (Anthropic) to generate the first version of the backend, frontend
 - Alerts (email or Slack) when a plant changes status.
 - Persist results in a database instead of recomputing from the CSV at startup, and support new data arriving daily.
 - Add browser tests for the UI, and a table view of the daily rows.
-- Add a more explicit per-plant data-quality indicator and confidence/coverage metrics.
 
 ## One case where the detection can be wrong
 
@@ -187,18 +185,3 @@ A related limit: a plant with a steady PR of 0.55 from day one shows as Underper
 | S5 | Healthy | 0.75 | none (but 4 rows of bad data cleaned) |
 
 The cleaning step removed 2 duplicate rows and neutralised 10 bad or missing readings (missing values, a negative generation, an impossible irradiance, an impossible cloud cover, and a generation above capacity).
-
-
-## Screenshots
-
-| Overview (desktop) | Plant S3: sudden drop |
-|---|---|
-| ![Overview](screenshots/01-overview-desktop.png) | ![S3](screenshots/02-detail-S3-sudden-drop.png) |
-
-| Plant S4: outages | Plant S2: gradual decline |
-|---|---|
-| ![S4](screenshots/03-detail-S4-outages.png) | ![S2](screenshots/04-detail-S2-gradual-decline.png) |
-
-| Overview (mobile) | Plant S3 (mobile) |
-|---|---|
-| ![Mobile overview](screenshots/05-overview-mobile.png) | ![Mobile S3](screenshots/06-detail-S3-mobile.png) |
