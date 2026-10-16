@@ -3,9 +3,7 @@
 A small web app that shows the health of 5 solar plants from 90 days of daily data, flags problems, and explains them in plain language.
 
 - **Backend:** Python, FastAPI, pandas
-- **Frontend:** plain HTML/CSS/JS + Chart.js (served by the same FastAPI app, so there is one thing to deploy)
-- **Live link:** _add your Render URL here_
-- **Screenshots:** see `screenshots/` _(add yours)_
+- **Frontend:** plain HTML/CSS/JS 
 
 ## Run it locally
 
